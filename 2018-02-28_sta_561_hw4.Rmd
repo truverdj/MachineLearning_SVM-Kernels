@@ -9,3 +9,76 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#### (1) Constructing Kernels 
+
+Let $K_1$ be a kernel over $ \mathbb{R}^2 \times \mathbb{R} $ and $a \in \mathbb{R}$.
+
+##### (a) 
+
+$aK_1(x,z)$ is a kernel only if $a > 0$. 
+
+$$
+aK_1(x,z) = a\langle \Phi(x), \Phi(z) \rangle = \langle \sqrt{a}\Phi(x), \sqrt{a}\Phi(z) \rangle
+$$
+
+##### (b)
+
+The following is not a kernel.
+
+$$
+K(x,z) = \langle x,z\rangle ^3 + \left( \langle x,z \rangle - 1 \right)^2 = \langle x,z\rangle ^3 + \langle x,z \rangle^2 - 2\langle x,z \rangle + 1
+$$
+
+We can show that it violates the Cauchy-Schwarz Inequality. Take $x = 0$, and $z$ such that $ ||z||_2^2 \in (0,1)$.
+
+Then 
+$$
+\begin{aligned}
+K(x,z) &= 1 \\
+K(x,x) &= 1 \\
+K(z,z) &= (||z||_2^2)^3 + (||z||_2^2)^2 - 2||z||_2^2 + 1 \\
+&= r < 1 \quad\quad (\text{since }||z||^2 \in (0,1))
+\end{aligned}
+$$
+
+Now we have 
+$$
+\sqrt{K(x,x)K(z,z)} = \sqrt{r} < 1 = K(x,z),
+$$
+which is a violation of the Cauchy-Schwarz Inequality. Therefore, $K$ is not a valid kernel. 
+
+##### (c)
+
+We first note that
+$$
+k(x,z) = \langle x,z \rangle^2 = \langle x,z \rangle\langle x,z \rangle
+$$
+is a valid kernel since it is the product of two valid kernels. We know this fact as a result of Mercer's Theorem.
+$$
+\begin{aligned}
+k_1(x,z) &= \sum_{j=1}^\infty \psi_j(x)\psi_j(z) \quad (\text{the }\psi's\text{ have eaten the }\lambda's)\\
+k_2(x,z) &= \sum_{i=1}^\infty \Psi_i(x)\Psi_i(z)\\
+k_1(x,z)k_2(x,z) &= \sum_{j=1}^\infty\sum_{i=1}^\infty \psi_j(x)\Psi_i(x)\psi_j(z)\Psi_i(z)
+\end{aligned}
+$$
+
+Take $$\phi_{(i,j)}(x) =  \psi_j(x)\Psi_i(x).$$ We can construct a feature map $\Phi(x)$ with features $\phi_{(i,j)}(x)$.
+
+Then, we have our defined feature map, so 
+$$
+k_1(x,z)k_2(x,z) = \sum_{(i,j)\in \mathbb{N}\times\mathbb{N}} \phi_{(i,j)}(x) \phi_{(i,j)}(z) = \langle \Phi(x),\Phi(z) \rangle
+$$ 
+is a kernel. Similarly for the finite case. 
+
+We now play the same game with
+$$
+\exp(-||x||^2)\exp(-||z||^2).
+$$
+
+If we take $g(x) = \exp(-||x||^2)$, then the above is the product $g(x)g(z)$ which is a kernel with feature map $\Phi = g$. 
+
+So, 
+$$
+K(x,z) = \langle x,z \rangle^2 + \exp(-||x||^2)\exp(-||z||^2)
+$$
+is a valid kernel 
