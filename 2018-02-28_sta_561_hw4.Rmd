@@ -82,3 +82,28 @@ $$
 K(x,z) = \langle x,z \rangle^2 + \exp(-||x||^2)\exp(-||z||^2)
 $$
 is a valid kernel 
+
+
+#### (2) RKHS
+
+We first note that $X = [0,1] \subset \mathbb{R}$ is compact because it is closed and bounded. We next need to show that $\mathcal{F}$ is a Hilbert space. That is, we need it to be a complete innner product space. We'll go with the standard $L_2$ inner product. To show that it is complete, consider a Cauchy sequence of functions $\{f_n(x)\} = \{a_nx\}$ from this space.
+
+$\forall \epsilon > 0, ~ \exists N:\forall m >n \geq N $
+$$
+\left(\int_0^1 |f_m(x) - f_n(x)|^2 dx\right)^{1/2} < \epsilon
+$$
+
+We want to show that $\lim \{f_n\} \in \mathcal{F}$.
+
+$$
+\begin{aligned}
+\left(\int_0^1 |f_m(x) - f_n(x)|^2 dx\right)^{1/2}
+&= \left(\int_0^1 |a_mx - a_nx|^2 dx\right)^{1/2} \\
+&= \left(\int_0^1 |a_m - a_n|^2x^2 dx\right)^{1/2} \\
+&= |a_m - a_n| \\
+\implies \\
+|a_m - a_n| &< \epsilon
+\end{aligned}
+$$
+
+This gives us that $\{a_n\}$ is a Cauchy sequence of real numbers, which we know converges to some $a\in \mathbb{R}$, which in turn gives us $f_n \to f \in \mathcal{F} $.
