@@ -86,12 +86,13 @@ is a valid kernel
 
 #### (2) RKHS
 
-We first note that $X = [0,1] \subset \mathbb{R}$ is compact because it is closed and bounded. We next need to show that $\mathcal{F}$ is a Hilbert space. That is, we need it to be a complete innner product space. We'll go with the standard $L_2$ inner product. To show that it is complete, consider a Cauchy sequence of functions $\{f_n(x)\} = \{a_nx\}$ from this space.
+We first note that $X = [0,1] \subset \mathbb{R}$ is compact because it is closed and bounded. We next need to show that $\mathcal{F}$ is a Hilbert space. That is, we need it to be a complete innner product space. We'll go with the standard $L_2$ inner product. To show that it is complete, consider a Cauchy sequence of functions $\{f_n(x)\} = \{a_nx\}$ from this space. 
 
 $\forall \epsilon > 0, ~ \exists N:\forall m >n \geq N $
 $$
-\left(\int_0^1 |f_m(x) - f_n(x)|^2 dx\right)^{1/2} < \epsilon
+\left(\int_0^1 |f_m(x) - f_n(x)|^2 dx\right)^{1/2} < \frac{\epsilon}{\sqrt 3}
 $$
+The $\sqrt{3}$ will come up later.
 
 We want to show that $\lim \{f_n\} \in \mathcal{F}$.
 
@@ -100,10 +101,32 @@ $$
 \left(\int_0^1 |f_m(x) - f_n(x)|^2 dx\right)^{1/2}
 &= \left(\int_0^1 |a_mx - a_nx|^2 dx\right)^{1/2} \\
 &= \left(\int_0^1 |a_m - a_n|^2x^2 dx\right)^{1/2} \\
-&= |a_m - a_n| \\
-\implies \\
+&= \frac{1}{\sqrt 3} |a_m - a_n| < \frac{\epsilon}{\sqrt3} \\
+\implies 
 |a_m - a_n| &< \epsilon
 \end{aligned}
 $$
 
-This gives us that $\{a_n\}$ is a Cauchy sequence of real numbers, which we know converges to some $a\in \mathbb{R}$, which in turn gives us $f_n \to f \in \mathcal{F} $.
+This gives us that $\{a_n\}$ is a Cauchy sequence of real numbers, which we know converges to some $a\in \mathbb{R}$. So we are suspicious that $a_nx \to ax$.
+
+We can verify this. Given $\epsilon > 0, ~\exists N$ s.t. $\forall n\geq N: |a - a_n| < \epsilon $, since we know $a_n$ is Cauchy. Therefore
+$$
+\begin{aligned}
+\left(\int_0^1 |f_n(x) - f(x)|^2 dx\right)^{1/2}
+&= \left(\int_0^1 |a_n - a|^2x^2 dx\right)^{1/2} \\
+&= \frac{1}{\sqrt3}|a_n - a| < \epsilon,
+\end{aligned}
+$$
+and we can say with certainty that $a_nx \to ax : f_n \to f \in \mathcal F $. We conclude that $\mathcal F$ is complete and a bonafide Hilbert space. Now, onward to the reproducing property. 
+
+First, we will show that $\forall f \in \mathcal{F}$, we have
+$$
+f(\cdot) = \sum_{i=1}^m\alpha_ik(\cdot,x_i) = \sum_{i=1}^m \alpha_i (\cdot x_i)
+$$
+
+This seems fairly simple. Take $\alpha_1 = 1, x_i = a \in \mathbb{R}$, and obtain $f(x) = k(x,a) = ax$.
+
+We now need $\langle k(\cdot, x), f \rangle = f(x) ~\forall f\in\mathcal{F}$ Again, this seems alright.
+$$
+\langle k(\cdot, x), f \rangle = \langle k(\cdot, x), k(\cdot, a) \rangle = k(x,a) = ax = f(x)
+$$
