@@ -130,3 +130,61 @@ We now need $\langle k(\cdot, x), f \rangle = f(x) ~\forall f\in\mathcal{F}$ Aga
 $$
 \langle k(\cdot, x), f \rangle = \langle k(\cdot, x), k(\cdot, a) \rangle = k(x,a) = ax = f(x)
 $$
+
+#### (3) Convexity and KKT Conditions
+
+##### (a) Lagrangian and Dual Form
+
+We first rewrite the constraints so that that appears as $g_i(w, \eta, \eta^*) < 0$ 
+
+$$
+\min_{w,\eta,\eta^*} \frac{1}{2}||w||^2 + C\sum_{i=1}^n(\eta_i + \eta_i^*)
+$$
+subject to 
+$$
+\begin{aligned}
+y_i - w^Tx_i - \epsilon - \eta_i &\leq 0 \\
+w^Tx_i - y_i - \epsilon - \eta_i^* &\leq 0 \\
+-\eta_i &\leq 0 \\
+-\eta_i^* &\leq 0 \\
+i &= 1,\dots,n
+\end{aligned}
+$$
+
+In total, we have $m = 4n$ constraints of the form $g_j(w,\eta,\eta^*) \leq 0$. We write the lagrangian as 
+$$
+\begin{aligned}
+\mathcal{L}(w,\eta,\eta^*,\alpha) 
+&= \frac{1}{2}||w||^2 + C\sum_{i=1}^n(\eta_i + \eta_i^*) + \sum_{j=1}^m\alpha_jg_j(w,\eta,\eta^*) \\
+&= \frac{1}{2}||w||^2 + C\sum_{i=1}^n(\eta_i + \eta_i^*) \\
+&+ \sum_{i=1}^n \alpha_i [y_i - w^Tx_i - \epsilon - \eta_i] + \alpha_{i+n}[w^Tx_i - y_i - \epsilon - \eta_i^*] + \alpha_{i+2n}[-\eta_i] +\alpha_{i+3n}[-\eta_i^*]
+\end{aligned}
+$$
+
+We now have this painful Lagrangian from which to derive the dual form. Let's begin with the implications of Lagrangian stationarity. 
+$$
+\begin{aligned}
+\nabla_w \mathcal{L}(w,\eta,\eta^*,\alpha) 
+&= 0 \\
+w + \sum_{i=1}^n [-\alpha_ix_i + \alpha_{i+n}x_i ] &= 0 \implies w = \sum_{i=1}^n [\alpha_ix_i - \alpha_{i+n}x_i ] \\
+\nabla_\eta \mathcal{L}(w,\eta,\eta^*,\alpha) &= 0 \implies C - \alpha_i - \alpha_{i + 2n} =0 \\
+\nabla_{\eta^*} \mathcal{L}(w,\eta,\eta^*,\alpha) &= 0 \implies C - \alpha_{i+n} - \alpha_{i + 3n} = 0
+\end{aligned}
+$$
+From the other KKT conditions, we get 
+$$
+\alpha_j \geq 0 ~\forall i \\
+\alpha_i [y_i - w^Tx_i - \epsilon - \eta_i] + \alpha_{i+n}[w^Tx_i - y_i - \epsilon - \eta_i^*] + \alpha_{i+2n}[-\eta_i] +\alpha_{i+3n}[-\eta_i^*] =0 ~\forall i \\
+g_j(w, \eta, \eta^*) \leq 0
+$$
+
+Now let's expand that Lagrangian and hope for the best. 
+$$
+\begin{aligned}
+\mathcal{L}(w,\eta, \eta^*, \alpha)
+&= \frac{1}{2}||w||^2 + C\sum_{i=1}^n(\eta_i + \eta_i^*) \\
+&+ \sum_{i=1}^n \alpha_i [y_i - w^Tx_i - \epsilon - \eta_i] + \alpha_{i+n}[w^Tx_i - y_i - \epsilon - \eta_i^*] + \alpha_{i+2n}[-\eta_i] +\alpha_{i+3n}[-\eta_i^*] \\
+&= 
+\end{aligned}
+$$
+
