@@ -2,7 +2,11 @@
 title: "STA 561 HW4 (SVM & Kernels)"
 author: "Daniel Truver"
 date: "2/28/2018"
-output: pdf_document
+header-includes:
+  - \usepackage{ulem}
+output: 
+  pdf_document: 
+    keep_tex: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### (1) Constructing Kernels 
 
-Let $K_1$ be a kernel over $ \mathbb{R}^2 \times \mathbb{R} $ and $a \in \mathbb{R}$.
+Let $K_1$ be a kernel.
 
 ##### (a) 
 
@@ -29,7 +33,7 @@ $$
 K(x,z) = \langle x,z\rangle ^3 + \left( \langle x,z \rangle - 1 \right)^2 = \langle x,z\rangle ^3 + \langle x,z \rangle^2 - 2\langle x,z \rangle + 1
 $$
 
-We can show that it violates the Cauchy-Schwarz Inequality. Take $x = 0$, and $z$ such that $ ||z||_2^2 \in (0,1)$.
+We can show that it violates the Cauchy-Schwarz Inequality. Take $x = 0$, and $z$ such that $$ ||z||_2^2 \in (0,1).$$
 
 Then 
 $$
@@ -88,7 +92,7 @@ is a valid kernel
 
 We first note that $X = [0,1] \subset \mathbb{R}$ is compact because it is closed and bounded. We next need to show that $\mathcal{F}$ is a Hilbert space. That is, we need it to be a complete innner product space. We'll go with the standard $L_2$ inner product. To show that it is complete, consider a Cauchy sequence of functions $\{f_n(x)\} = \{a_nx\}$ from this space. 
 
-$\forall \epsilon > 0, ~ \exists N:\forall m >n \geq N $
+$$\forall \epsilon > 0, ~ \exists N:\forall m >n \geq N $$
 $$
 \left(\int_0^1 |f_m(x) - f_n(x)|^2 dx\right)^{1/2} < \frac{\epsilon}{\sqrt 3}
 $$
@@ -109,7 +113,7 @@ $$
 
 This gives us that $\{a_n\}$ is a Cauchy sequence of real numbers, which we know converges to some $a\in \mathbb{R}$. So we are suspicious that $a_nx \to ax$.
 
-We can verify this. Given $\epsilon > 0, ~\exists N$ s.t. $\forall n\geq N: |a - a_n| < \epsilon $, since we know $a_n$ is Cauchy. Therefore
+We can verify this. Given $\epsilon > 0, ~\exists N$ s.t. $$\forall n\geq N: |a - a_n| < \epsilon, $$ since we know $a_n$ is Cauchy. Therefore
 $$
 \begin{aligned}
 \left(\int_0^1 |f_n(x) - f(x)|^2 dx\right)^{1/2}
@@ -117,7 +121,7 @@ $$
 &= \frac{1}{\sqrt3}|a_n - a| < \epsilon,
 \end{aligned}
 $$
-and we can say with certainty that $a_nx \to ax : f_n \to f \in \mathcal F $. We conclude that $\mathcal F$ is complete and a bonafide Hilbert space. Now, onward to the reproducing property. 
+and we can say that $$a_nx \to ax : f_n \to f \in \mathcal F. $$ We conclude that $\mathcal F$ is complete and a bonafide Hilbert space. Now, onward to the reproducing property. 
 
 First, we will show that $\forall f \in \mathcal{F}$, we have
 $$
@@ -173,8 +177,8 @@ w + \sum_{i=1}^n [-\alpha_ix_i + \alpha_{i+n}x_i ] &= 0 \implies w = \sum_{i=1}^
 $$
 From the other KKT conditions, we get 
 $$
-\alpha_j \geq 0 ~\forall i \\
-\alpha_i [y_i - w^Tx_i - \epsilon - \eta_i] + \alpha_{i+n}[w^Tx_i - y_i - \epsilon - \eta_i^*] + \alpha_{i+2n}[-\eta_i] +\alpha_{i+3n}[-\eta_i^*] =0 ~\forall i \\
+\alpha_j \geq 0 ~\forall j \\
+\alpha_jg_j(w,\eta,\eta^*) =0 ~\forall j \\
 g_j(w, \eta, \eta^*) \leq 0
 $$
 
@@ -184,6 +188,13 @@ $$
 \mathcal{L}(w,\eta, \eta^*, \alpha)
 &= \frac{1}{2}||w||^2 + C\sum_{i=1}^n(\eta_i + \eta_i^*) \\
 &+ \sum_{i=1}^n \alpha_i [y_i - w^Tx_i - \epsilon - \eta_i] + \alpha_{i+n}[w^Tx_i - y_i - \epsilon - \eta_i^*] + \alpha_{i+2n}[-\eta_i] +\alpha_{i+3n}[-\eta_i^*] \\
+&= \frac{1}{2}||w||^2 + \sum_{i=1}^nC\eta_i + \sum_{i=1}^nC\eta^* \\
+&+ \sum_{i=1}^n \alpha_iy_i - w^T\sum_{i=1}^n\alpha_ix_i - \sum_{i=1}^n\alpha_i\epsilon -\sum_{i=1}^n \alpha_i\eta_i \\
+&+ w^T\sum_{i=1}^n \alpha_{i+n}x_i -\sum_{i=1}^n \alpha_{i+n}y_i -\sum_{i=1}^n\alpha_{i+n}\epsilon -\sum_{i=1}^n \alpha_{i+n}\eta^*\\
+&- \sum_{i=1}^n\alpha_{i+2n}\eta_i - \sum_{i=1}^n\alpha_{i+3n}\eta_i^* \\
+&= \frac{1}{2}||w||^2 + \sout{\sum_{i=1}^n(C - \alpha_i - \alpha_{i+2n})\eta_i} + \sum_{i=1}^n(C-\alpha_{i+n} - \alpha_{i + 3n})\eta_i^* \\
+&+ \sum_{i=1}^n \alpha_iy_i - w^T\sum_{i=1}^n\alpha_ix_i - \sum_{i=1}^n\alpha_i\epsilon  \\
+&+ w^T\sum_{i=1}^n \alpha_{i+n}x_i -\sum_{i=1}^n \alpha_{i+n}y_i -\sum_{i=1}^n\alpha_{i+n}\epsilon\\
 &= 
 \end{aligned}
 $$
