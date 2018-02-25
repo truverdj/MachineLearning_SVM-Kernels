@@ -155,7 +155,7 @@ i &= 1,\dots,n
 \end{aligned}
 $$
 
-In total, we have $m = 4n$ constraints of the form $g_j(w,\eta,\eta^*) \leq 0$. We write the lagrangian as 
+In total, we have $m = 4n$ constraints of the form $g_j(w,\eta,\eta^*) \leq 0$. In the following lagrangian, consider $\alpha$ to be a vector in $4n$ dimensions, with the first $n$ corresponding to the first constraint, the second $n$ correspoding to the second constraint, and so on. We write the lagrangian as 
 $$
 \begin{aligned}
 \mathcal{L}(w,\eta,\eta^*,\alpha) 
@@ -202,6 +202,7 @@ $$
 &= \mathcal{L}(\alpha)
 \end{aligned}
 $$
+To my surprise, it seems this only depends on the first $2n$ of the $\alpha_j$'s correspoding to the first two constraints. Perhaps we could have ignored the non-negativity constraints on the $\eta$'s, but that feels morally wrong, and I don't have a clear enough understanding of what the $\eta$'s are doing to ignore them.
 
 So, we get the dual form:
 $$
@@ -228,16 +229,39 @@ Putting these together, and examining the $\alpha_i^* > 0$ case, we suspect that
 $$
 \{x_i: |y_i - w^Tx_i | = \epsilon + \eta \}.
 $$
-I admit some uncertainty about the role of the $\eta$'s. Since, as far I can tell, they are positive numbers constrained only by $C$ in the objective functions, we conclude that the support vectors are members of the set:
+I admit some uncertainty about the role of the $\eta$'s. Since, as far I can tell, they are positive numbers constrained only by $C$ in the objective functions, we conclude that:
 $$
-\{x_i: |y_i - w^Tx_i | \geq \epsilon  \}
+\{\text{support vectors}\} \subseteq \{x_i: |y_i - w^Tx_i | \geq \epsilon  \}
 $$
 
 ##### (c) Influence of Epsilon
 
-We suspect that increasing $\epsilon$ will make our model less likely to overfit. We are willing to accept more errors in the training set. On the other hand, forcing $\epsilon$ to zero will force us to fit more closely to the data. Additionally, if our suspicion about the identities of the support vectors from (b) is true, we will have more support vectors as $\epsilon$ approaches 0. That is, more and more points from our dataset will influence the decision boundary, which makes us more likely to overfit.  
+We suspect that increasing $\epsilon$ will make our model less likely to overfit. We are willing to accept more errors in the training set. On the other hand, forcing $\epsilon$ to zero will force us to fit more closely to the data. If our suspicion about the identities of the support vectors from (b) is true, we will have more support vectors as $\epsilon$ approaches 0. That is, more and more points from our dataset will influence the decision boundary, which makes us more likely to overfit.  
 
 At this point, I finally get why it's called the epsilon-insensitive loss. 
 
 ##### (d) Influence of C
 
+I am still uncertain about the role of the $\eta$'s. The only place I can clearly see their effects is in the constraints.
+As $C$ gets larger, it seems the $\eta$'s will get smaller. When we look at the original constraints of the problem,
+$$
+\begin{aligned}
+y_i - w^Tx_i - \epsilon  &\leq \eta_i \\
+w^Tx_i - y_i - \epsilon  &\leq \eta_i^*
+\end{aligned}
+$$
+we see the sending the $\eta$'s to 0 will force the difference between $y$ and $f$ closer to $\epsilon$. That is, we will have to use a function $f$ that fits more closely to the data, making it more likely that we overfit. 
+
+##### (e) Test Points
+
+From the KKT condition of Lagrangian Stationarity, we have an expression for $w$.
+$$
+w = \sum_{i=1}^n (\alpha_i - \alpha_{i+n})x_i 
+$$
+
+To calculate the value of $f$ at a new point, $x_{new}$ we use
+$$
+w^Tx_{new} = \sum_{i=1}^n (\alpha_i - \alpha_{i+n})x_i^Tx_{new}.
+$$
+
+Were we to employ the kernel trick, we would replace the dot product with $k(x_i, x_{new})$.
