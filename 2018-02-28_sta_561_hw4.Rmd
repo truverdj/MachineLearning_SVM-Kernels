@@ -277,22 +277,85 @@ Were we to employ the kernel trick, we would replace the dot product with $k(x_i
 Oh dear, here we go.
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
-library(quadprog)
-library(kernlab)
-library(e1071)
 ```
 Special thanks to https://gist.github.com/rwalk/64f1365f7a2470c498a4 for explaining how `quadprog` and `kernlab` work.
 
-##### (a/b) Hard SVM with Credit Card Data
+##### (a) Hard SVM 
 
+We have the credit card data here just to see if the function works.
 ```{r hardSVM}
-creditCard = read.csv("creditCard.csv")
-creditCard = creditCard %>%
-  mutate(Class = ifelse(Class == 1, 1, -1))
+library(quadprog)
+train = function(X, y, eps = 1e-5){
+  # preparing for QP solver
+  Q = sapply(1:nrow(X), function(i){ y[i] * t(X)[,i] })
+  D = t(Q) %*% Q
+  d = matrix(1, nrow = nrow(X))
+  b0 = rbind( matrix(0, nrow = 1, ncol = 1) , matrix(0, nrow = nrow(X), ncol = 1) )
+  A = t(rbind(matrix(y, nrow = 1, ncol=nrow(X)), diag(nrow = nrow(X))))
+  # QP solver
+  sol = solve.QP(D + eps*diag(nrow(X)), d, A, b0, meq = 1)
+  alpha = sol$solution
+  comp = (alpha * y[,1]) * X # computes summand of lambda formula
+  lambda = apply(comp, 2, sum) # apply sum over the rows to get lambda
+  return(lambda)
+}
+predict = function(X_new, lambda){
+  return(sign(X_new %*% lambda))
+}
+```
+
+##### (b) Credit Card Data
+
+```{r creditCard}
+creditCard = read.csv("creditCard.csv") %>%
+  mutate(Class = factor(ifelse(Class == 1, 1, -1)))
 n_train = ceiling(0.9*nrow(creditCard))
 set.seed(2018)
 trainIndex = sample(1:nrow(creditCard), n_train)
-train = creditCard[trainIndex,]
-test = creditCard[-trainIndex,]
-
+train.df = creditCard[trainIndex,]
+test.df = creditCard[-trainIndex,]
+X_train = as.matrix(train.df %>% select(-Class))
+y_train = as.matrix(train.df$Class)
+X_test = as.matrix(test.df %>% select(-Class))
+y_test = as.matrix(test.df$Class)
 ```
+
+We will construct ROC curves by changing the cost parameter within the model. 
+
+```{r trainSVM}
+library(e1071)
+firstSVM = svm(Class~., data = train.df, kernel = "linear", decision.values = TRUE)
+firstPred = predict(firstSVM, newdata = test.df, decision.values = TRUE)
+truth = test.df$Class
+accuracy = mean(firstPred == truth)
+numpoints = 50
+TPR = rep(NA, numpoints)
+FPR = rep(NA, numpoints)
+i = 1
+for (c in seq(-5,5, length.out = numpoints)){
+  decision.values = attributes(firstPred)$decision.values
+  newDecision = decision.values + c
+  predictions = sign(newDecision)
+  tpr = sum(predictions == 1 & predictions == truth)/sum(truth == 1)
+  fpr = sum(predictions == 1 & predictions != truth)/sum(truth == -1)
+  TPR[i] = tpr
+  FPR[i] = fpr
+  i = i + 1
+}
+{
+  plot(FPR, TPR, pch = 16, xlim = c(0,1), main = "ROC Curve Varying Decision Values")
+  lines(FPR, TPR)
+}
+AUCapprox = 0
+for (i in 2:numpoints){
+  AUCapprox = AUCapprox + (TPR[i-1] + TPR[i])/2 * (FPR[i]-FPR[i-1]) 
+}
+```
+
+```{r reportOnFirstSVM}
+knitr::kable(data.frame(accuracy, AUCapprox), col.names = c("Accuracy", "AUC"),
+             caption = "Some Interesting Values of our SVM",
+             digits = 3)
+```
+
+##### (c) SVM with Radial Basis Kernel
