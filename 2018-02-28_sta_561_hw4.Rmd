@@ -25,6 +25,12 @@ $$
 aK_1(x,z) = a\langle \Phi(x), \Phi(z) \rangle = \langle \sqrt{a}\Phi(x), \sqrt{a}\Phi(z) \rangle
 $$
 
+If $a<0$, we will get
+$$
+\int_{X\times X} aK_1(x,z)f(x)f(z) ~dxdz =a\int_{X\times X} K_1(x,z)f(x)f(z) ~dxdz < 0,
+$$
+which is a problem.
+
 ##### (b)
 
 The following is not a kernel.
@@ -265,3 +271,28 @@ w^Tx_{new} = \sum_{i=1}^n (\alpha_i - \alpha_{i+n})x_i^Tx_{new}.
 $$
 
 Were we to employ the kernel trick, we would replace the dot product with $k(x_i, x_{new})$.
+
+#### (4) SVM Implementation 
+
+Oh dear, here we go.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(quadprog)
+library(kernlab)
+library(e1071)
+```
+Special thanks to https://gist.github.com/rwalk/64f1365f7a2470c498a4 for explaining how `quadprog` and `kernlab` work.
+
+##### (a/b) Hard SVM with Credit Card Data
+
+```{r hardSVM}
+creditCard = read.csv("creditCard.csv")
+creditCard = creditCard %>%
+  mutate(Class = ifelse(Class == 1, 1, -1))
+n_train = ceiling(0.9*nrow(creditCard))
+set.seed(2018)
+trainIndex = sample(1:nrow(creditCard), n_train)
+train = creditCard[trainIndex,]
+test = creditCard[-trainIndex,]
+
+```
