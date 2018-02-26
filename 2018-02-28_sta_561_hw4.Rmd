@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 #### (1) Constructing Kernels 
@@ -299,7 +299,7 @@ train = function(X, y, eps = 1e-5){
   lambda = apply(comp, 2, sum) # apply sum over the rows to get lambda
   return(lambda)
 }
-predict = function(X_new, lambda){
+predictHard = function(X_new, lambda){ #call this `predictHard` or it masks default `predict`
   return(sign(X_new %*% lambda))
 }
 ```
@@ -324,18 +324,20 @@ We will construct ROC curves by changing the cost parameter within the model.
 
 ```{r trainSVM}
 library(e1071)
-firstSVM = svm(Class~., data = train.df, kernel = "linear", decision.values = TRUE)
-firstPred = predict(firstSVM, newdata = test.df, decision.values = TRUE)
+firstSVM = svm(Class~., data = train.df, kernel = "linear", decision.values = TRUE,
+               probability = TRUE)
+firstPred = predict(firstSVM, newdata = test.df, decision.values = TRUE, probability = TRUE)
 truth = test.df$Class
 accuracy = mean(firstPred == truth)
 numpoints = 50
 TPR = rep(NA, numpoints)
 FPR = rep(NA, numpoints)
 i = 1
-for (c in seq(-5,5, length.out = numpoints)){
-  decision.values = attributes(firstPred)$decision.values
-  newDecision = decision.values + c
-  predictions = sign(newDecision)
+for (c in seq(0,1, length.out = numpoints)){
+  decision.values = attributes(firstPred)$probabilities
+  newDecision = rep(0, length(firstPred))
+  newDecision[decision.values[,1] > c] = 1
+  predictions = sign(newDecision - .5)
   tpr = sum(predictions == 1 & predictions == truth)/sum(truth == 1)
   fpr = sum(predictions == 1 & predictions != truth)/sum(truth == -1)
   TPR[i] = tpr
@@ -348,14 +350,71 @@ for (c in seq(-5,5, length.out = numpoints)){
 }
 AUCapprox = 0
 for (i in 2:numpoints){
-  AUCapprox = AUCapprox + (TPR[i-1] + TPR[i])/2 * (FPR[i]-FPR[i-1]) 
+  AUCapprox = AUCapprox + (TPR[i-1] + TPR[i])/2 * (-FPR[i]+FPR[i-1]) 
 }
 ```
 
-```{r reportOnFirstSVM}
+```{r reportOnFirstSVM, echo=FALSE}
 knitr::kable(data.frame(accuracy, AUCapprox), col.names = c("Accuracy", "AUC"),
              caption = "Some Interesting Values of our SVM",
              digits = 3)
 ```
 
 ##### (c) SVM with Radial Basis Kernel
+
+```{r secondSVM}
+radSVM.5 = svm(Class ~., data = train.df, kernel = "radial", gamma = 1/5, probability = TRUE)
+radPred.5 = predict(radSVM.5, newdata = test.df, probability =  TRUE)
+accuracy.5 = mean(radPred.5 == truth)
+radSVM.25 = svm(Class ~., data = train.df, kernel = "radial", gamma = 1/25, probability = TRUE)
+radPred.25 = predict(radSVM.25, newdata = test.df, probability = TRUE)
+accuracy.25 = mean(radPred.25 == truth)
+``` 
+
+```{r, echo=FALSE}
+knitr::kable(data.frame(accuracy, accuracy.5, accuracy.25), 
+             col.names = c("Linear Kernel", "Radial Basis Sigma^2 = 5", "Radial Basis Sigma^2 = 25"),
+             caption = "Accuracy Comparison of Kernels",
+             digits = 3)
+```
+
+Well, that's disappointing. We now construct the ROC curves as done above. 
+
+```{r, echo=FALSE}
+numpoints = 50
+AUCapproxRad = rep(0, 2)
+for (j in 1:2){
+  if (j == 1){
+    Pred = radPred.5
+  } else {
+    Pred = radPred.25
+  }
+  TPR = rep(NA, numpoints)
+  FPR = rep(NA, numpoints)
+  i = 1
+  for (c in seq(0,1, length.out = numpoints)){
+    decision.values = attributes(Pred)$probabilities
+    newDecision = rep(0, length(Pred))
+    newDecision[decision.values[,1] > c] = 1
+    predictions = sign(newDecision - .5)
+    tpr = sum(predictions == 1 & predictions == truth)/sum(truth == 1)
+    fpr = sum(predictions == 1 & predictions != truth)/sum(truth == -1)
+    TPR[i] = tpr
+    FPR[i] = fpr
+    i = i + 1
+  }
+  {
+    plot(FPR, TPR, pch = 16, xlim = c(0,1), 
+         main = paste0("ROC Curve Varying Decision Values, sigma^2 = ", 5^j))
+    lines(FPR, TPR)
+  }
+  for (i in 2:numpoints){
+    AUCapproxRad[j] = AUCapproxRad[j] + (TPR[i-1] + TPR[i])/2 * (-FPR[i]+FPR[i-1]) 
+  }
+}
+knitr::kable(data.frame(AUCapprox, AUCapproxRad[1], AUCapproxRad[2]),
+             col.names = c("AUC Linear Kernel", "AUC Radial Kernel, sigma^2 = 5",
+                            "AUC Radial Kernel, sigma^2 = 25"),
+             caption = "Comparison of AUC between Kernels",
+             digits = 3)
+```
