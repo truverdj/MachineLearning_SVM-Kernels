@@ -45,7 +45,7 @@ Then
 $$
 \begin{aligned}
 K(x,z) &= 1 \\
-K(x,x) &= 1 \\
+K(x,x) &= 1 \quad (\text{already a problem}) \\
 K(z,z) &= (||z||_2^2)^3 + (||z||_2^2)^2 - 2||z||_2^2 + 1 \\
 &= r < 1 \quad\quad (\text{since }||z||^2 \in (0,1))
 \end{aligned}
@@ -219,16 +219,18 @@ $$
 
 Let's take a look at our complementary slackness conditions. 
 $$
-\alpha_i^*[y_i - w^Tx_i - \epsilon - \eta_i] = 0 \implies
+\begin{aligned}
+&\alpha_i^*[y_i - w^Tx_i - \epsilon - \eta_i] = 0 \implies
 \begin{cases}
 \alpha_i^* >0 & \implies y_i - w^Tx_i = \epsilon + \eta_i\\
 y_i - w^Tx_i - \epsilon - \eta_i < 0 &\implies \alpha_i^* = 0
 \end{cases} \\
-\alpha_i^*[w^Tx_i - y_i - \epsilon - \eta_i^*] = 0 \implies 
+&\alpha_i^*[w^Tx_i - y_i - \epsilon - \eta_i^*] = 0 \implies 
 \begin{cases}
 \alpha_i^* >0 &\implies w^Tx_i - y_i = \epsilon + \eta_i^* \\
 w^Tx_i - y_i - \epsilon - \eta_i^* <0 &\implies \alpha_i^* = 0
 \end{cases}
+\end{aligned}
 $$
 
 Putting these together, and examining the $\alpha_i^* > 0$ case, we suspect that the support vectors are 
